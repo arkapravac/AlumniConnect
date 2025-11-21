@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlumniConnect - Centralized Alumni Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // Removed custom color palette
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.6s ease-out'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: 0 },
+                            '100%': { transform: 'translateY(0)', opacity: 1 }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Poppins', sans-serif; }
+
+        /* Removed all gradient & color-specific styles */
+        .card-hover {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .nav-link {
+            position: relative;
+            color: #4b5563;
+            text-decoration: none;
+        }
+        .nav-link.active,
+        .nav-link:hover {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .gradient-bg { /* Replaced gradient with solid neutral */
+            background: #1f2937;
+        }
+
+        .mobile-menu {
+            transition: transform 0.3s ease;
+            transform: translateX(-100%);
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .stats-card, .event-card, .alumni-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+        }
+
+        .message-item {
+            transition: background 0.2s;
+        }
+        .message-item:hover {
+            background-color: #f9fafb;
+        }
+        .unread {
+            background-color: #fef9e7;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .profile-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 25px;
+            height: 25px;
+            background: #6b7280;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+        }
+
+        .page-content {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            display: none;
+        }
+        .page-content.active {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+
+        /* Artificial lag triggers */
+        body.laggy * {
+            pointer-events: none;
+        }
+        body.laggy::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.01);
+            z-index: 9999;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-white text-gray-800 rounded-lg p-2">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <span class="text-xl font-bold">AlumniConnect</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6 text-sm">
+                    <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+                    <a href="#" class="nav-link" data-page="alumni">Alumni</a>
+                    <a href="#" class="nav-link" data-page="events">Events</a>
+                    <a href="#" class="nav-link" data-page="messages">Messages</a>
+                    <a href="#" class="nav-link" data-page="settings">Settings</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-full hover:bg-white/10">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <img src="https://placehold.co/32x32" alt="Profile" class="rounded-full">
+                            <div class="profile-badge">AC</div>
+                        </div>
+                        <span class="hidden sm:inline">User</span>
+                    </div>
+                    <button class="md:hidden p-2 text-white" id="mobile-menu-button">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50">
+            <div class="p-4">
+                <button id="close-mobile-menu" class="float-right p-2">✕</button>
+                <nav class="mt-8 space-y-3">
+                    <a href="#" class="block py-2 text-gray-800" data-page="dashboard">Dashboard</a>
+                    <a href="#" class="block py-2 text-gray-800" data-page="alumni">Alumni</a>
+                    <a href="#" class="block py-2 text-gray-800" data-page="events">Events</a>
+                    <a href="#" class="block py-2 text-gray-800" data-page="messages">Messages</a>
+                    <a href="#" class="block py-2 text-gray-800" data-page="settings">Settings</a>
+                </nav>
+            </div>
+        </div>
+        <div class="menu-overlay"></div>
+    </nav>
+
+    <main class="flex-1 container mx-auto px-4 py-8">
+        <div id="dashboard-page" class="page-content active">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Dashboard</h1>
+            <p class="text-gray-600 mb-6">Welcome back!</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="stats-card p-4 rounded-lg card-hover">Total Alumni<br><strong>4,289</strong></div>
+                <div class="stats-card p-4 rounded-lg card-hover">Active Events<br><strong>12</strong></div>
+                <div class="stats-card p-4 rounded-lg card-hover">New Connections<br><strong>24</strong></div>
+            </div>
+            <div class="bg-white p-4 rounded-lg border mb-6">Recent activity...</div>
+            <div class="bg-white p-4 rounded-lg border">Upcoming events...</div>
+        </div>
+
+        <div id="alumni-page" class="page-content">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Alumni Directory</h1>
+            <input type="text" id="alumni-search" placeholder="Search..." class="w-full p-2 border rounded mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="alumni-card p-4 rounded card-hover">Arkaprava Chakraborty<br><small>Kolkata, WB</small></div>
+                <div class="alumni-card p-4 rounded card-hover">Priyam Sharma<br><small>Patna, BH</small></div>
+                <div class="alumni-card p-4 rounded card-hover">Aloo Bhujiya<br><small>Port Blair</small></div>
+            </div>
+        </div>
+
+        <div id="events-page" class="page-content"><h2 class="text-xl">Events</h2><p>Events go here.</p></div>
+        <div id="messages-page" class="page-content"><h2 class="text-xl">Messages</h2><p>Messages go here.</p></div>
+        <div id="settings-page" class="page-content"><h2 class="text-xl">Settings</h2><p>Settings go here.</p></div>
+    </main>
+
+
+    <footer class="gradient-bg text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <div class="bg-white text-gray-800 rounded-lg p-2"><i class="fas fa-graduation-cap"></i></div>
+                        <span class="text-xl font-bold">AlumniConnect</span>
+                    </div>
+                    <p class="text-white/80 mt-2">Connecting alumni worldwide</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-white/80 hover:text-white">Privacy Policy</a>
+                    <a href="#" class="text-white/80 hover:text-white">Terms</a>
+                    <a href="#" class="text-white/80 hover:text-white">Contact: 8250163783</a>
+                </div>
+            </div>
+            <div class="mt-8 text-center text-white/60 text-sm">
+                © 2025 AlumniConnect:Arkprava Chakraborty. All rights reserved.
+            
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        
+        function lag(ms = 150) {
+            const start = Date.now();
+            while (Date.now() - start < ms) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+          
+            lag(200);
+
+            const pages = document.querySelectorAll('.page-content');
+            const links = document.querySelectorAll('[data-page]');
+            const mobileBtn = document.getElementById('mobile-menu-button');
+            const closeBtn = document.getElementById('close-mobile-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const overlay = document.querySelector('.menu-overlay');
+
+            function showPage(id) {
+                lag(100); // lag on every page switch
+                pages.forEach(p => p.classList.remove('active'));
+                const page = document.getElementById(id + '-page');
+                if (page) page.classList.add('active');
+            }
+
+            function setActive(page) {
+                links.forEach(l => l.classList.toggle('active', l.dataset.page === page));
+            }
+
+            links.forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    const p = link.dataset.page;
+                    showPage(p);
+                    setActive(p);
+                    if (mobileMenu.classList.contains('open')) {
+                        mobileMenu.classList.remove('open');
+                        overlay.classList.remove('active');
+                    }
+                });
+            });
+
+            mobileBtn?.admove('open');
+                overlay.classList.remove('active');
+            });
+            overlay?.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                overlay.classList.remove('active');
+            });
+
+          
+            const search = document.getElementById('alumni-search');
+            if (search) {
+                search.addEventListener('input', () => {
+                    const q = search.value.toLowerCase();
+                    document.querySelectorAll('.alumni-card').forEach(card => {
+                        card.style.display = card.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+                        // Force reflow = lag
+                        void card.offsetHeight;
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
