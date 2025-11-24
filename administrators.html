@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlumniConnect - Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4338CA',
+                        secondary: '#7E22CE',
+                        accent: '#0D9488',
+                        light: '#F5F3FF',
+                        dark: '#1E1B4B'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.6s ease-out'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: 0 },
+                            '100%': { transform: 'translateY(0)', opacity: 1 }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .nav-link {
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #4338CA, #7E22CE);
+            transition: width 0.3s ease;
+        }
+        .nav-link.active::after,
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .pulse {
+            animation: pulse-slow 2s infinite;
+        }
+        .fade-in {
+            animation: fade-in 0.5s ease-in-out;
+        }
+        .slide-up {
+            animation: slide-up 0.6s ease-out;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #4338CA 0%, #7E22CE 100%);
+        }
+        .mobile-menu {
+            transition: transform 0.3s ease;
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .menu-overlay {
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .btn-gradient {
+            background: linear-gradient(90deg, #4338CA, #7E22CE);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(67, 56, 202, 0.4);
+        }
+        .feature-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .feature-card:hover {
+            transform: scale(1.03);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.1) 0%, rgba(126, 34, 206, 0.1) 100%);
+            border: 1px solid rgba(67, 56, 202, 0.2);
+        }
+        .event-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border: 1px solid rgba(126, 34, 206, 0.1);
+        }
+        .user-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border: 1px solid rgba(13, 148, 136, 0.2);
+        }
+        .message-item {
+            transition: all 0.2s ease;
+        }
+        .message-item:hover {
+            background-color: rgba(67, 56, 202, 0.05);
+        }
+        .unread {
+            background-color: rgba(255, 241, 228, 0.6);
+            border-left: 3px solid #F97316;
+        }
+        .profile-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #4338CA, #7E22CE);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background-color: #EF4444;
+            border-radius: 50%;
+        }
+        .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.3);
+        }
+        .page-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        .page-content.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-white text-primary rounded-lg p-2">
+                        <i class="fas fa-user-shield text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold">AlumniConnect — Admin</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+                    <a href="#" class="nav-link" data-page="users">User Management</a>
+                    <a href="#" class="nav-link" data-page="events">Manage Events</a>
+                    <a href="#" class="nav-link" data-page="messages">Support Inbox</a>
+                    <a href="#" class="nav-link" data-page="settings">System Settings</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="p-2 rounded-full hover:bg-white/20 transition">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="notification-dot"></span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <img src="https://placehold.co/40x40/6366F1/white?text=AD" alt="Admin" class="rounded-full">
+                            <div class="profile-badge">AD</div>
+                        </div>
+                        <span class="hidden sm:block font-medium">Admin User</span>
+                    </div>
+                    <button class="md:hidden p-2 rounded-md hover:bg-white/20" id="mobile-menu-button">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50 transform -translate-x-full">
+            <div class="p-4">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center space-x-2">
+                        <div class="bg-primary text-white rounded-lg p-2">
+                            <i class="fas fa-user-shield text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">Admin Portal</span>
+                    </div>
+                    <button id="close-mobile-menu" class="p-2 rounded-md hover:bg-gray-100">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <nav class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-primary hover:text-white transition" data-page="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-primary hover:text-white transition" data-page="users">
+                        <i class="fas fa-users-cog"></i>
+                        <span>User Management</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-primary hover:text-white transition" data-page="events">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Manage Events</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-primary hover:text-white transition" data-page="messages">
+                        <i class="fas fa-headset"></i>
+                        <span>Support Inbox</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg text-gray-700 hover:bg-primary hover:text-white transition" data-page="settings">
+                        <i class="fas fa-cogs"></i>
+                        <span>System Settings</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+        <div class="menu-overlay fixed inset-0 bg-black/50 z-40 hidden"></div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto px-4 py-8">
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page-content">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                <p class="text-gray-600 mt-2">Monitor platform activity and manage user engagement.</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="stats-card p-6 rounded-xl card-hover">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-600">Total Users</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">4,421</p>
+                        </div>
+                        <div class="bg-primary/20 p-3 rounded-lg">
+                            <i class="fas fa-users text-primary text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-card p-6 rounded-xl card-hover">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-600">Reported Issues</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">7</p>
+                        </div>
+                        <div class="bg-secondary/20 p-3 rounded-lg">
+                            <i class="fas fa-exclamation-triangle text-secondary text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-card p-6 rounded-xl card-hover">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-600">Platform Health</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">99.8%</p>
+                        </div>
+                        <div class="bg-accent/20 p-3 rounded-lg">
+                            <i class="fas fa-heartbeat text-accent text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Admin Activity Log</h2>
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-4 p-3 rounded-lg hover:bg-gray-50 transition">
+                        <div class="bg-primary/10 p-2 rounded-lg">
+                            <i class="fas fa-user-plus text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">New user verified: Priyam Sharma</p>
+                            <p class="text-sm text-gray-500">10 minutes ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4 p-3 rounded-lg hover:bg-gray-50 transition">
+                        <div class="bg-secondary/10 p-2 rounded-lg">
+                            <i class="fas fa-ban text-secondary"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Spam account (user_8821) suspended</p>
+                            <p class="text-sm text-gray-500">1 hour ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4 p-3 rounded-lg hover:bg-gray-50 transition">
+                        <div class="bg-accent/10 p-2 rounded-lg">
+                            <i class="fas fa-sync-alt text-accent"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Database backup completed</p>
+                            <p class="text-sm text-gray-500">3 hours ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events Preview -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-900">Upcoming Events</h2>
+                    <a href="#" class="text-primary hover:text-primary/80 font-medium" data-page="events">Manage All</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="event-card p-4 rounded-lg">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-gray-900">Annual Alumni Reunion</h3>
+                                <p class="text-gray-600 text-sm mt-1">Dec 15, 2025 • University Campus</p>
+                            </div>
+                            <span class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">Approved</span>
+                        </div>
+                        <button class="mt-3 w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition">
+                            View Details
+                        </button>
+                    </div>
+                    <div class="event-card p-4 rounded-lg">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-gray-900">Career Networking Mixer</h3>
+                                <p class="text-gray-600 text-sm mt-1">Nov 28, 2025 • Downtown Center</p>
+                            </div>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Pending</span>
+                        </div>
+                        <button class="mt-3 w-full bg-secondary text-white py-2 rounded-lg hover:bg-secondary/90 transition">
+                            Review
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management Page -->
+        <div id="users-page" class="page-content hidden">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">User Management</h1>
+                <p class="text-gray-600 mt-2">View, verify, and manage user accounts.</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" id="user-search" placeholder="Search users by name or email..." 
+                               class="search-input w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    <button class="btn-gradient text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-plus mr-2"></i> Add User
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="user-card rounded-xl p-5 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="relative">
+                            <img src="https://placehold.co/60x60/6366F1/white?text=AC" alt="Arkaprava" class="rounded-full">
+                            <div class="profile-badge">AC</div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="font-bold text-gray-900">Arkaprava Chakraborty</h3>
+                            <p class="text-gray-600 text-sm">Verified Alumni</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-600 mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope mr-2 text-gray-400"></i>
+                            <span>arkapravac366@gmail.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition">
+                            Edit
+                        </button>
+                        <button class="p-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <div id="messages-page" class="page-content hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Support Inbox</h1>
+                    <p class="text-gray-600 mt-2">User-reported issues and requests.</p>
+                </div>
+                <button class="btn-gradient text-white px-4 py-2 rounded-lg">
+                    <i class="fas fa-plus mr-2"></i> New Ticket
+                </button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="divide-y divide-gray-100">
+                    <div class="message-item unread p-4 hover:bg-gray-50 cursor-pointer transition">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="relative">
+                                    <img src="https://placehold.co/40x40/8B5CF6/white?text=PS" class="rounded-full">
+                                    <div class="profile-badge">PS</div>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-900">Priyam Sharma</h3>
+                                    <p class="text-gray-600 text-sm mt-1">Can't update profile picture</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-gray-500 text-sm">Nov 23</span>
+                                <div class="w-2 h-2 bg-red-500 rounded-full mt-1 ml-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div id="settings-page" class="page-content hidden">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">System Settings</h1>
+                <p class="text-gray-600 mt-2">Configure platform-wide preferences.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-6">Platform Configuration</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Site Name</label>
+                                <input type="text" value="AlumniConnect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
+                                <input type="email" value="admin@alumniconnect.edu" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div class="flex justify-end pt-4">
+                                <button class="btn-gradient text-white px-6 py-2 rounded-lg">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-6">Security</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="font-medium text-gray-900">2FA Enforcement</h3>
+                                <label class="relative inline-flex items-center cursor-pointer mt-2">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            <div class="pt-4 border-t border-gray-200">
+                                <button class="w-full flex items-center justify-center space-x-2 bg-red-50 text-red-600 py-2 rounded-lg hover:bg-red-100 transition">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Sign Out</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+        <div id="events-page" class="page-content hidden">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Manage Events</h1>
+                    <p class="text-gray-600 mt-2">Review, approve, and organize alumni events.</p>
+                </div>
+                <button class="btn-gradient text-white px-4 py-2 rounded-lg mt-4 md:mt-0">
+                    <i class="fas fa-plus mr-2"></i> Create Event
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="event-card rounded-xl p-5 card-hover">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-gray-900">Annual Alumni Reunion</h3>
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-4 mt-3 text-gray-600">
+                                <div class="flex items-center">
+                                    <i class="fas fa-calendar mr-2 text-primary"></i>
+                                    <span>December 15, 2025</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-2 text-secondary"></i>
+                                    <span>University Campus</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-user-check mr-2 text-accent"></i>
+                                    <span>Approved</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex mt-4 md:mt-0 space-x-2">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">Approve</button>
+                            <button class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="gradient-bg text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-white/80">© 2025 AlumniConnect — Admin Portal. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // EXACT SAME JS AS YOUR ORIGINAL — FULLY FUNCTIONAL
+        document.addEventListener('DOMContentLoaded', function() {
+            const pages = document.querySelectorAll('.page-content');
+            const navLinks = document.querySelectorAll('[data-page]');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeMobileMenu = document.getElementById('close-mobile-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const menuOverlay = document.querySelector('.menu-overlay');
+
+            showPage('dashboard');
+            setActiveLink('dashboard');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    showPage(page);
+                    setActiveLink(page);
+                    if (mobileMenu.classList.contains('open')) {
+                        mobileMenu.classList.remove('open');
+                        menuOverlay.classList.remove('active');
+                    }
+                });
+            });
+
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.add('open');
+                menuOverlay.classList.add('active');
+            });
+            closeMobileMenu.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+                menuOverlay.classList.remove('active');
+            });
+            menuOverlay.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+                menuOverlay.classList.remove('active');
+            });
+
+            function showPage(pageId) {
+                pages.forEach(page => {
+                    page.classList.remove('active', 'hidden');
+                    page.classList.add('hidden');
+                });
+                const page = document.getElementById(`${pageId}-page`);
+                if (page) {
+                    page.classList.remove('hidden');
+                    setTimeout(() => page.classList.add('active'), 10);
+                }
+            }
+
+            function setActiveLink(pageId) {
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('data-page') === pageId);
+                });
+            }
+
+            // Search (if user-search exists)
+            const userSearch = document.getElementById('user-search');
+            if (userSearch) {
+                userSearch.addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    const cards = document.querySelectorAll('.user-card');
+                    cards.forEach(card => {
+                        const text = card.textContent.toLowerCase();
+                        card.style.display = text.includes(query) ? 'block' : 'none';
+                    });
+                });
+            }
+
+            // Message click (mark as read)
+            document.querySelectorAll('.message-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    this.classList.remove('unread');
+                    const dot = this.querySelector('.w-2.h-2');
+                    if (dot) dot.remove();
+                });
+            });
+
+            // Touch support
+            if ('ontouchstart' in window || navigator.maxTouchPoints) {
+                document.querySelectorAll('.card-hover, button, .nav-link, .message-item')
+                    .forEach(el => {
+                        el.addEventListener('touchstart', () => el.style.opacity = '0.9');
+                        el.addEventListener('touchend', () => el.style.opacity = '1');
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
