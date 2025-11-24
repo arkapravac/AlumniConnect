@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - AlumniConnect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    * {
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
+                  url('https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80') center/cover no-repeat fixed;
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-md px-4">
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-hover">
+      <div class="bg-gradient-to-r from-primary to-secondary p-6 text-center">
+        <div class="bg-white text-primary rounded-lg p-2 inline-block mb-3">
+          <i class="fas fa-user-lock text-xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-white">AlumniConnect</h1>
+        <p class="text-white/90 mt-1">Sign in to continue</p>
+      </div>
+      <div class="p-6">
+        <form id="login-form">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-medium mb-2">Email or Username</label>
+            <input
+              type="text"
+              id="username"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="e.g. user@univ.edu"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+            <input
+              type="password"
+              id="password"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          <div class="mb-5">
+            <label class="block text-gray-700 text-sm font-medium mb-2">Login As</label>
+            <div class="flex space-x-6">
+              <label class="inline-flex items-center">
+                <input type="radio" name="role" value="student" class="text-primary focus:ring-primary" checked />
+                <span class="ml-2 text-gray-700">Alumni / Student</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" name="role" value="admin" class="text-primary focus:ring-primary" />
+                <span class="ml-2 text-gray-700">Administrator</span>
+              </label>
+            </div>
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-gradient-to-r from-primary to-secondary text-white py-2.5 rounded-lg font-medium hover:opacity-90 transition">
+            Sign In
+          </button>
+        </form>
+        <p class="text-center text-gray-500 text-xs mt-4">
+          © 2025 AlumniConnect: Arkprava Chakraborty. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const role = document.querySelector('input[name="role"]:checked').value;
+      if (role === 'admin') {
+        window.location.href = 'administrators.html';
+      } else {
+        window.location.href = 'main.html';
+      }
+    });
+
+    
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4338CA',
+            secondary: '#7E22CE'
+          }
+        }
+      }
+    };
+  </script>
+</body>
+</html>
