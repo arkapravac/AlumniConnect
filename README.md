@@ -1,10 +1,8 @@
 This file is made to guide the user into deploying the project
-vscode/
-      -----settings.json
-src/  
-      ------administration.html
-      ------main.html
-      ------login.html
+vscode/settings.json
+src/administration.html
+src/main.html
+src/login.html
 
 rest of the projects files are nothing but u can also download the specifications of tailwindcss website 
 they are device settings basically 
