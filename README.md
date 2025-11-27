@@ -11,3 +11,4 @@ main files are in the vscode/ and in the src/ directories put them in your direc
 
 and start from "start src/login.html" this code inside the Terminal of ur IDE
 
+© 2025 AlumniConnect — Arkaprava Chakraborty. All rights reserved.
