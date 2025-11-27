@@ -13,7 +13,14 @@
     --color-gray-800: oklch(27.8% 0.033 256.848);
     --spacing: 0.25rem;
     --text-base: 1rem;
-    --texibold: 600;
+    --text-base--line-height: calc(1.5 / 1);
+    --text-lg: 1.125rem;
+    --text-lg--line-height: calc(1.75 / 1.125);
+    --text-xl: 1.25rem;
+    --text-xl--line-height: calc(1.75 / 1.25);
+    --text-2xl: 1.5rem;
+    --text-2xl--line-height: calc(2 / 1.5);
+    --font-weight-semibold: 600;
     --font-weight-bold: 700;
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
@@ -85,6 +92,28 @@
   :-moz-focusring {
     outline: auto;
   }
+  progress {
+    vertical-align: baseline;
+  }
+  summary {
+    display: list-item;
+  }
+  ol, ul, menu {
+    list-style: none;
+  }
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    vertical-align: middle;
+  }
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+  button, input, select, optgroup, textarea, ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
     color: inherit;
     border-radius: 0;
     background-color: transparent;
@@ -206,6 +235,18 @@
   }
   .text-gray-800 {
     color: var(--color-gray-800);
+  }
+  .text-indigo-700 {
+    color: var(--color-indigo-700);
+  }
+}
+@property --tw-space-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-font-weight {
+  syntax: "*";
   inherits: false;
 }
 @layer properties {
